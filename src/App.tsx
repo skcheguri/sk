@@ -42,4 +42,8 @@ function App() {
   );
 }
 
+useEffect(() => {
+  console.log("ENV:", import.meta.env);
+}, []);
+
 export default App;
