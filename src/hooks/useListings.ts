@@ -204,7 +204,7 @@ export async function createProperty(propertyData: {
   if (!supabase) return { data: null, error: 'Supabase not connected' };
 
   const { data, error } = await supabase
-    .from('properties')
+    .from('listings')
     .insert(propertyData)
     .select('id')
     .single();
