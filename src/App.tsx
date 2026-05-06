@@ -19,6 +19,10 @@ function ScrollToTop() {
 }
 
 function App() {
+  useEffect(() => {
+    console.log("ENV:", import.meta.env);
+  }, []);
+
   return (
     <I18nextProvider i18n={i18n}>
       <AuthProvider>
@@ -41,9 +45,5 @@ function App() {
     </I18nextProvider>
   );
 }
-
-useEffect(() => {
-  console.log("ENV:", import.meta.env);
-}, []);
 
 export default App;
