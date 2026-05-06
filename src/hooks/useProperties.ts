@@ -129,8 +129,12 @@ export async function createProperty(propertyData: {
   const supabase = getSupabase();
   if (!supabase) return { data: null, error: 'Supabase not connected' };
 
+  console.log("propertyData:", propertyData);
+  console.log("auth uid:", user.id);
   const { data, error } = await supabase
     .from('properties')
+    console.log("propertyData:", propertyData);
+    console.log("auth uid:", user.id);
     .insert(propertyData)
     .select('id')
     .single();
