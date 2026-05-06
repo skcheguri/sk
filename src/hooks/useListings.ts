@@ -61,7 +61,7 @@ export function useListings(category?: string): UseListingsReturn {
 
     let query = supabase
       .from('listings')
-      .select('*, owner:users!listings_owner_id_fkey(name, avatar_url, verified_aadhaar)')
+      .select('*, owner:public.users!listings_owner_id_fkey(name, avatar_url, verified_aadhaar)')
       .eq('status', 'active')
       .order('created_at', { ascending: false });
 
@@ -106,7 +106,7 @@ export function useOwnerListings(ownerId: string | undefined): UseListingsReturn
     setLoading(true);
     const { data, error: dbError } = await supabase
       .from('listings')
-      .select('*, owner:users!listings_owner_id_fkey(name, avatar_url, verified_aadhaar)')
+      .select('*, owner:public.users!listings_owner_id_fkey(name, avatar_url, verified_aadhaar)')
       .eq('owner_id', ownerId)
       .order('created_at', { ascending: false });
 
@@ -157,7 +157,7 @@ export function useSavedListings(userId: string | undefined): UseListingsReturn 
     const listingIds = data.map((d) => d.listing_id);
     const { data: listingsData, error: listingsError } = await supabase
       .from('listings')
-      .select('*, owner:users!listings_owner_id_fkey(name, avatar_url, verified_aadhaar)')
+      .select('*, owner:public.users!listings_owner_id_fkey(name, avatar_url, verified_aadhaar)')
       .in('id', listingIds)
       .eq('status', 'active');
 

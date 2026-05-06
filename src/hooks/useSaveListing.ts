@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { getSupabase, isSupabaseConnected } from '@/lib/supabase';
+import { getSupabase } from '@/lib/supabase';
 
 export interface SavedListingState {
   savedIds: string[];
@@ -16,15 +16,13 @@ export function useSaveListing(userId: string | undefined): SavedListingState {
   const [error, setError] = useState<string | null>(null);
 
   const fetchSavedIds = useCallback(async () => {
-    if (!isSupabaseConnected() || !userId) {
+    if (!userId) {
       setSavedIds([]);
       return;
     }
+
     const supabase = getSupabase();
-    if (!supabase) {
-      setSavedIds([]);
-      return;
-    }
+    if (!supabase) return;
 
     const { data, error: dbError } = await supabase
       .from('saved_listings')
@@ -44,47 +42,57 @@ export function useSaveListing(userId: string | undefined): SavedListingState {
     fetchSavedIds();
   }, [fetchSavedIds]);
 
-  const save = useCallback(async (listingId: string) => {
-    if (!isSupabaseConnected() || !userId) return;
-    const supabase = getSupabase();
-    if (!supabase) return;
+  const save = useCallback(
+    async (listingId: string) => {
+      if (!userId) return;
 
-    setSaving(true);
-    setError(null);
+      const supabase = getSupabase();
+      if (!supabase) return;
 
-    const { error: dbError } = await supabase
-      .from('saved_listings')
-      .insert({ user_id: userId, listing_id: listingId });
+      setSaving(true);
+      setError(null);
 
-    if (dbError) {
-      setError(dbError.message);
-    } else {
-      setSavedIds((prev) => [...prev, listingId]);
-    }
-    setSaving(false);
-  }, [userId]);
+      const { error: dbError } = await supabase
+        .from('saved_listings')
+        .insert({ user_id: userId, listing_id: listingId });
 
-  const unsave = useCallback(async (listingId: string) => {
-    if (!isSupabaseConnected() || !userId) return;
-    const supabase = getSupabase();
-    if (!supabase) return;
+      if (dbError) {
+        setError(dbError.message);
+      } else {
+        setSavedIds((prev) => [...prev, listingId]);
+      }
 
-    setSaving(true);
-    setError(null);
+      setSaving(false);
+    },
+    [userId]
+  );
 
-    const { error: dbError } = await supabase
-      .from('saved_listings')
-      .delete()
-      .eq('user_id', userId)
-      .eq('listing_id', listingId);
+  const unsave = useCallback(
+    async (listingId: string) => {
+      if (!userId) return;
 
-    if (dbError) {
-      setError(dbError.message);
-    } else {
-      setSavedIds((prev) => prev.filter((id) => id !== listingId));
-    }
-    setSaving(false);
-  }, [userId]);
+      const supabase = getSupabase();
+      if (!supabase) return;
+
+      setSaving(true);
+      setError(null);
+
+      const { error: dbError } = await supabase
+        .from('saved_listings')
+        .delete()
+        .eq('user_id', userId)
+        .eq('listing_id', listingId);
+
+      if (dbError) {
+        setError(dbError.message);
+      } else {
+        setSavedIds((prev) => prev.filter((id) => id !== listingId));
+      }
+
+      setSaving(false);
+    },
+    [userId]
+  );
 
   const refresh = useCallback(async () => {
     await fetchSavedIds();
